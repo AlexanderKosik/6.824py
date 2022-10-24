@@ -2,6 +2,9 @@
 
 - Coordinator and worker talk via RPC
 - The client application is a word count
+	- Multiple other .so files are available
+	- Can we use them in python?
+
 - The worker will ask the coordinator for a task
 	- Therefore we need no discovery of workers or anyting like that
 
