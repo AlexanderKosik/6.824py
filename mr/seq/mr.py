@@ -23,12 +23,11 @@ def mapf(filename: str, content: str) -> Tuple[str, int]:
 def reducef(word: str, values: List):
     return len(values)
 
-def keyFunc(element: Tuple[str, int]):
-    return element[0]
 
 def main():
     if len(sys.argv) < 2:
-        print(f"Usage: {__filename__} inputfiles")
+        print(f"Usage: {__file__} inputfiles")
+        raise SystemExit(1)
 
     input_files = sys.argv[1:]
 
@@ -41,17 +40,19 @@ def main():
             content = f.read()
             intermediate.extend(mapf(file, content))
 
+    keyFunc = lambda x: x[0]
+
     # sort intermediate
     intermediate.sort(key=keyFunc)
 
     output_file = "mr-out-seq-py.txt"
 
-    # Group elements to list by same key 
-    grouped_data = {key: group for key, group in groupby(intermediate, key=keyFunc)}
 
     # Call the reduce function for every element that has the same key. 
     with open(output_file, "wt") as f:
-        for key, group in grouped_data.items():
+        # Group by first attribute
+        for key, group in groupby(intermediate, key=keyFunc):
+            group = list(group)
             reduction = reducef(key, list(group))
             f.write(f"{key} {reduction}\n")
     
