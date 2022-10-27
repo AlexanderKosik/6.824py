@@ -1,22 +1,59 @@
 #!python3
 
-# Sequentiell implementation of map reduce 
+from typing import List, Tuple
+from functools import groupby
+
+# Sequential implementation of map reduce 
 # (does not make sense, just for learning purposes)
 
 import sys
+import re
 
-def mapf():
-    pass
+def mapf(filename: str, content: str): Tuple[str, int]:
+    """
+    Filename is currently not used.
+    Content is split by words
+    Returns a list with every word and count 1
+    """
+    regex = r"[^\w]"
+    words = [word for word in re.split(regex, content) if word]
 
-def reducef():
-    pass
+    # Return our intermediate result
+    return [(word, 1) for word in words]
+
+def reducef(word: str, values: List):
+    return len(values)
+
+def keyFunc(element: Tuple[str, int]):
+    return element[0]
 
 def main():
     if len(sys.argv) < 2:
         print(f"Usage: {__filename__} inputfiles")
 
     input_files = sys.argv[1:]
-    print(input_files)
 
+    # Intermediate result structure returned from map
+    intermediate = []
+
+    # Read content of every input file and pass to map function
+    for file in input_files:
+        with open(file) as f:
+            content = f.read()
+            intermediate.append(mapf(file, content))
+
+    # sort intermediate
+
+    output_file = "mr-out-seq-py.txt"
+
+    # Group elements to list by same key 
+    grouped_data = {key: group for key, group in groupby(intermediate, key=keyFunc}
+
+    # Call the reduce function for every element that has the same key. 
+    with open(output_file, "wt") as f:
+        for key, group in grouped_data.items():
+            reduction = reduce(key, group)
+            f.write(f"{key} {reduction}")
+    
 
 main()
