@@ -2,12 +2,11 @@
 
 from typing import List, Tuple
 from itertools import groupby
+import sys
+import re
 
 # Sequential implementation of map reduce 
 # (does not make sense, just for learning purposes)
-
-import sys
-import re
 
 def mapf(filename: str, content: str) -> Tuple[str, int]:
     """
@@ -40,7 +39,7 @@ def main():
     for file in input_files:
         with open(file) as f:
             content = f.read()
-            intermediate.append(mapf(file, content))
+            intermediate.extend(mapf(file, content))
 
     # sort intermediate
     intermediate.sort(key=keyFunc)
@@ -54,7 +53,7 @@ def main():
     with open(output_file, "wt") as f:
         for key, group in grouped_data.items():
             reduction = reducef(key, list(group))
-            f.write(f"{key} {reduction}")
+            f.write(f"{key} {reduction}\n")
     
 
 main()
