@@ -1,7 +1,7 @@
 #!python3
 
 from typing import List, Tuple
-from functools import groupby
+from itertools import groupby
 
 # Sequential implementation of map reduce 
 # (does not make sense, just for learning purposes)
@@ -9,7 +9,7 @@ from functools import groupby
 import sys
 import re
 
-def mapf(filename: str, content: str): Tuple[str, int]:
+def mapf(filename: str, content: str) -> Tuple[str, int]:
     """
     Filename is currently not used.
     Content is split by words
@@ -43,16 +43,17 @@ def main():
             intermediate.append(mapf(file, content))
 
     # sort intermediate
+    intermediate.sort(key=keyFunc)
 
     output_file = "mr-out-seq-py.txt"
 
     # Group elements to list by same key 
-    grouped_data = {key: group for key, group in groupby(intermediate, key=keyFunc}
+    grouped_data = {key: group for key, group in groupby(intermediate, key=keyFunc)}
 
     # Call the reduce function for every element that has the same key. 
     with open(output_file, "wt") as f:
         for key, group in grouped_data.items():
-            reduction = reduce(key, group)
+            reduction = reducef(key, list(group))
             f.write(f"{key} {reduction}")
     
 
