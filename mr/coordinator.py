@@ -9,4 +9,54 @@
 
 # Return value of RPC should propably be [filename, content]
 
+from queue import Queue
+import string
+import random
+from socket import *
+from threading import Thread
+import sys
 
+
+todo_queue = Queue()
+
+# fill with random data
+for _ in range(10):
+    random_string = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
+    todo_queue.put(random_string)
+
+def handle_connection(sock):
+    """
+    Pass one item from todo_queue to client
+    """
+    try:
+        while True:
+            msg = sock.recv(2048)
+            if msg != '' and not todo_queue.empty():
+                item = todo_queue.get()
+                print(f"Delivering item '{item}' to client")
+                sock.send(item.encode('utf-8'))
+                continue
+            else:
+                print("Done. Queue is empty")
+                sys.exit(0)
+    except BrokenPipeError:
+            print("Connection from client closed...")
+
+def listener(sock):
+    while True:
+        client, addr = sock.accept()
+        print("Got new connection from", addr)
+        Thread(target=handle_connection, args=[client]).start()
+
+
+def main():
+    sock = socket(AF_INET, SOCK_STREAM)
+    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, True)
+    sock.bind(('localhost', 20_001))
+    sock.listen()
+    print("Listening for new connections...")
+
+    Thread(target=listener, args=[sock]).start()    
+
+
+main()
