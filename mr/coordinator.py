@@ -20,11 +20,13 @@ import sys
 todo_queue = Queue()
 
 # fill with random data
-for _ in range(10):
-    random_string = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
+i = 100
+print(f"Filling queue with {i} items of random data")
+for _ in range(i):
+    random_string = "".join(random.choice(string.ascii_lowercase) for _ in range(8))
     todo_queue.put(random_string)
 
-def handle_connection(sock):
+def handle_connection(sock, addr):
     """
     Pass one item from todo_queue to client
     """
@@ -33,7 +35,7 @@ def handle_connection(sock):
             msg = sock.recv(2048)
             if msg != '' and not todo_queue.empty():
                 item = todo_queue.get()
-                print(f"Delivering item '{item}' to client")
+                print(f"Delivering item '{item}' to {addr}")
                 sock.send(item.encode('utf-8'))
                 continue
             else:
@@ -46,7 +48,7 @@ def listener(sock):
     while True:
         client, addr = sock.accept()
         print("Got new connection from", addr)
-        Thread(target=handle_connection, args=[client]).start()
+        Thread(target=handle_connection, args=[client, addr]).start()
 
 
 def main():

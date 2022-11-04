@@ -22,11 +22,16 @@ addr = ('localhost', 20_001)
 
 sock = socket(AF_INET, SOCK_STREAM)
 sock.connect(addr)
+print(f"Connected to {addr}")
 
 while True:
-    sock.send(b'next')
-    resp = sock.recv(2048)
-    if resp != '':
-        print(f"Processing {resp}")
-        time.sleep(random.randint(2, 5)
+    try:
+        sock.send(b'next')
+        resp = sock.recv(2048)
+        if resp != '':
+            print(f"Processing {resp}")
+            time.sleep(random.randint(2, 5))
+    except BrokenPipeError:
+        print("Connection lost")
+        raise SystemExit(0)
 
