@@ -65,17 +65,13 @@ def add_chunks_to_queue(filename, queue):
             queue.put(chunk)
 
 
-
-def main():
+def parse_args():
     input_files = sys.argv[1:]
 
-    # Intermediate result structure returned from map
-    intermediate = []
-
-    # Read content of every input file and pass to map function
     for file in input_files:
-        ...
-            #intermediate.extend(mapf(file, content))
+        add_chunks_to_queue(file, todo_queue)
+
+def main():
 
     sock = socket(AF_INET, SOCK_STREAM)
     sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, True)
