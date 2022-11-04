@@ -16,16 +16,20 @@ from socket import *
 from threading import Thread
 import sys
 import pickle
+from itertools import islice
 
+CHUNK_SIZE = 50
 
 todo_queue = Queue()
 
-# fill with random data
-i = 100
-print(f"Filling queue with {i} items of random data")
-for _ in range(i):
-    random_string = "".join(random.choice(string.ascii_lowercase) for _ in range(8))
-    todo_queue.put(random_string)
+def add_random_to_queue(queue, amount=100):
+    """
+    Fill queue with random data
+    """
+    print(f"Filling queue with {amount} items of random data")
+    for _ in range(amount):
+        random_string = "".join(random.choice(string.ascii_lowercase) for _ in range(8))
+        queue.put(random_string)
 
 def handle_connection(sock, addr):
     """
@@ -52,7 +56,27 @@ def listener(sock):
         Thread(target=handle_connection, args=[client, addr]).start()
 
 
+def add_chunks_to_queue(filename, queue):
+    with open(filename) as f:
+        while True:
+            chunk = "".join(islice(f, CHUNK_SIZE))
+            if not chunk:
+                break
+            queue.put(chunk)
+
+
+
 def main():
+    input_files = sys.argv[1:]
+
+    # Intermediate result structure returned from map
+    intermediate = []
+
+    # Read content of every input file and pass to map function
+    for file in input_files:
+        ...
+            #intermediate.extend(mapf(file, content))
+
     sock = socket(AF_INET, SOCK_STREAM)
     sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, True)
     sock.bind(('localhost', 20_001))
