@@ -15,6 +15,7 @@ import random
 from socket import *
 from threading import Thread
 import sys
+import pickle
 
 
 todo_queue = Queue()
@@ -35,9 +36,9 @@ def handle_connection(sock, addr):
             msg = sock.recv(2048)
             if msg != '' and not todo_queue.empty():
                 item = todo_queue.get()
-                print(f"Delivering item '{item}' to {addr}")
-                sock.send(item.encode('utf-8'))
-                continue
+                data = ("map", item)
+                num_bytes = sock.send(pickle.dumps(data))
+                print(f"Delivering {num_bytes} bytes {data} to {addr[0]}:{addr[1]}")
             else:
                 print("Done. Queue is empty")
                 sys.exit(0)

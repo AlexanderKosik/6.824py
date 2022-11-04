@@ -13,6 +13,7 @@ from socket import *
 from threading import Thread
 import time
 import random
+import pickle
 
 def request(sock: socket):
     sock.send(b'next')
@@ -29,7 +30,8 @@ while True:
         sock.send(b'next')
         resp = sock.recv(2048)
         if resp != '':
-            print(f"Processing {resp}")
+            func, content = pickle.loads(resp)
+            print(f"Processing {func}, {content}")
             time.sleep(random.randint(2, 5))
     except BrokenPipeError:
         print("Connection lost")
