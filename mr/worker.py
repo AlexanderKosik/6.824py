@@ -14,6 +14,19 @@ from threading import Thread
 import time
 import random
 import pickle
+from typing import Tuple
+
+def mapf(filename: str, content: str) -> Tuple[str, int]:
+    """
+    Filename is currently not used.
+    Content is split by words
+    Returns a list with every word and count 1
+    """
+    regex = r"[^\w]"
+    words = [word for word in re.split(regex, content) if word]
+
+    # Return our intermediate result
+    return [(word, 1) for word in words]
 
 def request(sock: socket):
     sock.send(b'next')
@@ -28,7 +41,7 @@ print(f"Connected to {addr}")
 while True:
     try:
         sock.send(b'next')
-        resp = sock.recv(2048)
+        resp = sock.recv(4096)
         if resp != '':
             func, content = pickle.loads(resp)
             print(f"Processing {func}, {content}")
