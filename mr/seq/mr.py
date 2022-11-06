@@ -53,7 +53,7 @@ def main():
         # Group by first attribute
         for key, group in groupby(intermediate, key=keyFunc):
             group = list(group)
-            reduction = reducef(key, list(group))
+            reduction = reducef(key, group)
             f.write(f"{key} {reduction}\n")
     
 
