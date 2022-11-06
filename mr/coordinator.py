@@ -20,7 +20,10 @@ from itertools import islice
 
 CHUNK_SIZE = 50
 
-todo_queue = Queue()
+map_queue = Queue()
+reduce_queue = Queue()
+
+intermediate = []
 
 def add_random_to_queue(queue, amount=100):
     """
@@ -33,16 +36,20 @@ def add_random_to_queue(queue, amount=100):
 
 def handle_connection(sock, addr):
     """
-    Pass one item from todo_queue to client
+    Pass one item from map_queue to client
     """
     try:
         while True:
             msg = sock.recv(2048)
-            if msg != '' and not todo_queue.empty():
-                item = todo_queue.get()
-                data = ("map", item)
+            if msg != '' and not map_queue.empty():
+                item = map_queue.get()
+                data = ("mapf", item)
                 num_bytes = sock.send(pickle.dumps(data))
-                print(f"Delivering {num_bytes} bytes {data} to {addr[0]}:{addr[1]}")
+                print(f"--> Delivering {num_bytes} bytes {data} to {addr[0]}:{addr[1]}")
+                response = sock.recv(8192)
+                words = pickle.loads(response)
+                print(f"<-- Received {len(response)} bytes from {addr[0]}:{addr[1]}")
+                intermediate.append(words)
             else:
                 print("Done. Queue is empty")
                 sys.exit(0)
@@ -69,7 +76,7 @@ def parse_args():
     input_files = sys.argv[1:]
 
     for file in input_files:
-        add_chunks_to_queue(file, todo_queue)
+        add_chunks_to_queue(file, map_queue)
 
 def main():
 
