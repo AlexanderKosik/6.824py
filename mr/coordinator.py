@@ -24,6 +24,9 @@ map_queue = Queue()
 reduce_queue = Queue()
 
 intermediate = []
+reduce_ready = False
+
+keyFunc = lambda x: x[0]
 
 def add_random_to_queue(queue, amount=100):
     """
@@ -41,15 +44,32 @@ def handle_connection(sock, addr):
     try:
         while True:
             msg = sock.recv(2048)
-            if msg != '' and not map_queue.empty():
-                item = map_queue.get()
-                data = ("mapf", item)
-                num_bytes = sock.send(pickle.dumps(data))
-                print(f"--> Delivering {num_bytes} bytes {data} to {addr[0]}:{addr[1]}")
-                response = sock.recv(8192)
-                words = pickle.loads(response)
-                print(f"<-- Received {len(response)} bytes from {addr[0]}:{addr[1]}")
-                intermediate.append(words)
+            if msg:
+                if not map_queue.empty():
+                    # Handle map case
+                    item = map_queue.get()
+                    data = ("mapf", item)
+                    num_bytes = sock.send(pickle.dumps(data))
+                    print(f"--> Delivering {num_bytes} bytes {data} to {addr[0]}:{addr[1]}")
+                    response = sock.recv(8192)
+                    words = pickle.loads(response)
+                    print(f"<-- Received {len(response)} bytes from {addr[0]}:{addr[1]}")
+                    intermediate.append(words)
+                else:
+                    # Handle reduce case
+                    if not reduce_ready:
+                        # sort intermediate
+                        intermediate.sort(key=keyFunc)
+
+                        # Group by first attribute
+                        for key, group in groupby(intermediate, key=keyFunc):
+                            group = list(group)
+                            #content = " " .join((key, group))
+
+
+    output_file = "mr-out-seq-py.txt"
+
+
             else:
                 print("Done. Queue is empty")
                 sys.exit(0)
