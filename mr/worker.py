@@ -42,7 +42,7 @@ while True:
     try:
         sock.send(b'next')
         resp = sock.recv(4096)
-        if resp != '':
+        if resp:
             func, content = pickle.loads(resp)
             if func == "mapf":
                 result = mapf("", content)
